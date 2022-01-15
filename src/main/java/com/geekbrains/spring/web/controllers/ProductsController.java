@@ -1,18 +1,24 @@
 package com.geekbrains.spring.web.controllers;
 
+import com.geekbrains.spring.web.converters.CategoryConverter;
 import com.geekbrains.spring.web.converters.ProductConverter;
+import com.geekbrains.spring.web.dto.CategoryDto;
 import com.geekbrains.spring.web.dto.ProductDto;
+import com.geekbrains.spring.web.entities.Category;
 import com.geekbrains.spring.web.entities.Product;
 import com.geekbrains.spring.web.exceptions.ResourceNotFoundException;
+import com.geekbrains.spring.web.services.CategoryService;
 import com.geekbrains.spring.web.services.ProductsService;
 import com.geekbrains.spring.web.validators.ProductValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductsController {
     private final ProductsService productsService;
     private final ProductConverter productConverter;
@@ -23,12 +29,14 @@ public class ProductsController {
             @RequestParam(name = "p", defaultValue = "1") Integer page,
             @RequestParam(name = "min_price", required = false) Integer minPrice,
             @RequestParam(name = "max_price", required = false) Integer maxPrice,
-            @RequestParam(name = "title_part", required = false) String titlePart
+            @RequestParam(name = "title_part", required = false) String titlePart,
+            @RequestParam(name = "category", required = false) Long categoryId
     ) {
         if (page < 1) {
             page = 1;
         }
-        return productsService.findAll(minPrice, maxPrice, titlePart, page).map(
+
+        return productsService.findAll(minPrice, maxPrice, titlePart, categoryId, page).map(
                 p -> productConverter.entityToDto(p)
         );
     }
